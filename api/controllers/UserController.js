@@ -12,7 +12,18 @@ module.exports = {
 			}, 
 
 create: function(req, res, next){
-	User.create( req.params.all(), function userCreated(err,user){
+
+		var userObj = {
+			name:  req.param('name'),
+			title: req.param('title'),
+			email: req.param('email'),
+			password: req.param('password'),
+			confirmation: req.param('confirmation'),
+
+		}
+
+
+	User.create( userObj, function userCreated(err,user){
 		if(err) {
 			console.log(err);
 			req.session.flash={
@@ -22,7 +33,8 @@ create: function(req, res, next){
 
 			return res.redirect('/user/new');
 		}
-
+			req.session.authenticated = true;
+			req.session.User = user;
 
 		//res.json(user);
 		res.redirect('/user/show/'+user.id);
@@ -66,7 +78,25 @@ create: function(req, res, next){
 	},
 
 	update: function(req, res, next){
-		User.update(req.param('id'), req.params.all(), function userUpdated(err) {
+
+		if(req.session.User.admin) {
+			var userObj = {
+				name:  req.param('name'),
+				title: req.param('title'),
+				email: req.param('email'),
+				admin: req.param('admin') 
+			}
+		}
+			else {
+				var userObj = {
+				name:  req.param('name'),
+				title: req.param('title'),
+				email: req.param('email'),
+			     }
+			}
+		
+
+		User.update(req.param('id'), userObj, function userUpdated(err) {
 			if(err){ 
 				return res.redirect('/user/edit/' + req.param('id'));
 			}

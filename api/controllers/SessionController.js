@@ -64,6 +64,10 @@ module.exports = {
 				req.session.authenticated = true;
 				req.session.User = user;
 
+				if(req.session.USer.admin) {
+					res.redirect('/user');
+					return;
+				}
 				
 
 					res.redirect('/user/show/' + user.id);
