@@ -64,6 +64,12 @@ module.exports = {
 				req.session.authenticated = true;
 				req.session.User = user;
 
+				//Change user status to Online
+
+				user.online = true;
+				user.save(function (err, user) {
+				if(err) return next(err);
+
 				if(req.session.User.admin) {
 					res.redirect('/user');
 					return;
@@ -73,12 +79,27 @@ module.exports = {
 					res.redirect('/user/show/' + user.id);
 				});
 			});
-		
+		});
 	},
 
 	destroy: function(req, res, next) {
-		req.session.destroy();
-		res.redirect('/session/new');
+		// req.session.destroy();
+		// res.redirect('/session/new');
+
+		User.findOne(req.session.User.id, function foundUser (err, user) {
+
+			var userId = req.session.User.id;
+
+			User.update(userId , {
+				online: false
+			}, function (err) {
+				if(err) return next(err);
+
+				req.session.destroy();
+
+				res.redirect('/session/new');
+			});
+		});
 	}
 
 };
